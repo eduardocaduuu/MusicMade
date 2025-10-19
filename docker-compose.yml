@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: musicmade_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/musicmade
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - ENVIRONMENT=development
+      - MAX_FILE_SIZE=104857600
+      - UPLOAD_PATH=/app/uploads
+      - MODELS_PATH=/app/models
+      - TEMP_PATH=/app/temp
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+      - models_data:/app/models
+      - temp_data:/app/temp
+    depends_on:
+      - postgres
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  celery:
+    build: ./backend
+    container_name: musicmade_celery
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/musicmade
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key-change-in-production}
+      - UPLOAD_PATH=/app/uploads
+      - MODELS_PATH=/app/models
+      - TEMP_PATH=/app/temp
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+      - models_data:/app/models
+      - temp_data:/app/temp
+    depends_on:
+      - redis
+      - postgres
+    command: celery -A app.workers.celery_worker worker --loglevel=info --concurrency=2
+
+  frontend:
+    build: ./frontend
+    container_name: musicmade_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_WS_URL=ws://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm start
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: musicmade_postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=musicmade
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: musicmade_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:
+  models_data:
+  temp_data:
