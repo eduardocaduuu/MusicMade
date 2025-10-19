@@ -116,7 +116,7 @@ class ApiClient {
     await this.client.delete(`/api/tablature/${tablatureId}`);
   }
 
-  // WebSocket for job status updates
+  // WebSocket for job status updates (fallback to polling if not available)
   createJobWebSocket(jobId: string): WebSocket {
     const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000';
     return new WebSocket(`${wsUrl}/api/jobs/${jobId}/ws`);

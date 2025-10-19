@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Complete MusicMade application\n\n- Backend FastAPI with audio separation using Demucs/Spleeter\n- Celery worker for asynchronous processing\n- Frontend React with TypeScript and Tailwind CSS\n- Audio player with waveform visualization\n- Tablature generator for guitar, bass, and piano\n- Docker and Render deployment configuration\n- Complete documentation and setup guides\n\nFeatures:\n- Upload audio files (MP3, WAV, FLAC, MP4)\n- AI-powered instrument separation\n- Interactive audio player with solo/mute controls\n- Automatic tablature generation\n- Optimized for Render free tier deployment\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []

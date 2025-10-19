@@ -1,8 +1,8 @@
 # Render Blueprint for MusicMade
-# Simplified version for free tier
+# Simplified version - Only 2 services (no worker, no Redis)
 
 services:
-  # Backend Web Service
+  # Backend Web Service (with background processing)
   - type: web
     name: musicmade-backend
     env: python
@@ -17,8 +17,6 @@ services:
         fromDatabase:
           name: musicmade-db
           property: connectionString
-      - key: REDIS_URL
-        value: redis://red-XXXXX:6379
       - key: SECRET_KEY
         generateValue: true
       - key: ENVIRONMENT
@@ -33,32 +31,6 @@ services:
         value: /tmp/temp
       - key: ALLOWED_ORIGINS
         value: "*"
-
-  # Celery Worker (Background Worker)
-  - type: worker
-    name: musicmade-worker
-    env: python
-    region: oregon
-    plan: free
-    buildCommand: cd backend && pip install -r requirements.txt
-    startCommand: cd backend && celery -A app.workers.celery_worker worker --loglevel=info --concurrency=1
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
-      - key: DATABASE_URL
-        fromDatabase:
-          name: musicmade-db
-          property: connectionString
-      - key: REDIS_URL
-        value: redis://red-XXXXX:6379
-      - key: SECRET_KEY
-        generateValue: true
-      - key: UPLOAD_PATH
-        value: /tmp/uploads
-      - key: MODELS_PATH
-        value: /tmp/models
-      - key: TEMP_PATH
-        value: /tmp/temp
 
   # Frontend Static Site
   - type: web
